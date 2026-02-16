@@ -1,0 +1,9 @@
+# Ignore the actual plugin code (Lazy handles this)
+/lazy/
+/lazy-lock.json.bak
+
+# Ignore Neovim runtime files
+*.swp
+*.swo
+undo/
+backup/
