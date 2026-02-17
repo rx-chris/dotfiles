@@ -1,52 +1,74 @@
 #!/bin/bash
 
-# Define paths
+# --- Configuration & Styles ---
 DOTFILES="$HOME/dotfiles"
+ZSH_PLUGINS_DIR="$HOME/.oh-my-zsh/custom/plugins"
 
-echo "🚀 Starting Robust Ubuntu Dotfiles Setup..."
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-# 1. Install System Dependencies (Added fontconfig for fonts)
-sudo apt update && sudo apt install -y zsh git stow curl fontconfig
+# --- Helper Functions ---
 
-# 2. Install Oh My Zsh (Unattended)
+# Log a status message
+log_info() {
+    echo -e "${BLUE}🚀 $1${NC}"
+}
+
+# Log a success message
+log_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+# Run a command silently, but show error if it fails
+execute_quietly() {
+    local task_name=$1
+    shift # Remove the first argument, leaving the command
+    
+    echo -n "⏳ $task_name... "
+    if "$@" > /dev/null 2>&1; then
+        echo -e "${GREEN}Done!${NC}"
+    else
+        echo -e "${RED}Failed!${NC}"
+        return 1
+    fi
+}
+
+# --- Main Script ---
+
+log_info "Starting Ubuntu Dotfiles Setup"
+
+# 1. Dependencies
+execute_quietly "Installing dependencies" \
+    sudo apt update && sudo apt install -y zsh git stow curl fontconfig
+
+# 2. Oh My Zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "🎁 Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    execute_quietly "Installing Oh My Zsh" \
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-# 3. Install Powerlevel10k & Plugins
-ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+# 3. Plugins
+mkdir -p "$ZSH_PLUGINS_DIR"
+[ ! -d "$ZSH_PLUGINS_DIR/zsh-autosuggestions" ] && \
+    execute_quietly "Installing zsh-autosuggestions" \
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS_DIR/zsh-autosuggestions"
 
-[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ] && \
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+[ ! -d "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting" ] && \
+    execute_quietly "Installing zsh-syntax-highlighting" \
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_PLUGINS_DIR/zsh-syntax-highlighting"
 
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && \
-    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+# 4. Fonts
+execute_quietly "Downloading MesloLGS NF Regular" \
+    curl -L https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/P10k/MesloLGS%20NF%20Regular.ttf -o ~/.local/share/fonts/MesloLGS\ NF\ Regular.ttf
 
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && \
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+execute_quietly "Refreshing font cache" fc-cache -fv
 
-# 4. Install MesloLGS NF Fonts (Required for P10k)
-echo "📂 Installing Nerd Fonts..."
-mkdir -p ~/.local/share/fonts
-curl -L https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/P10k/MesloLGS%20NF%20Regular.ttf -o ~/.local/share/fonts/MesloLGS\ NF\ Regular.ttf
-# (Repeat curl for Bold, Italic, Bold Italic if desired)
-fc-cache -fv
+# 5. Stow (Keep this one slightly more visible as it's the core of the script)
+log_info "Linking configurations with Stow"
+cd "$DOTFILES" || exit
+stow -v zsh
 
-# 5. Stow Configurations
-echo "🔗 Linking dotfiles..."
-cd "$DOTFILES"
-
-# Safety check: Remove existing .zshrc if it's not a symlink
-[ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ] && mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
-
-stow zsh
-
-# 6. Set Zsh as Default Shell (Using 'command -v' instead of 'which')
-ZSH_PATH=$(command -v zsh)
-if [ "$SHELL" != "$ZSH_PATH" ]; then
-    echo "🐚 Changing default shell to Zsh..."
-    chsh -s "$ZSH_PATH"
-fi
-
-echo "✨ All done! IMPORTANT: Manually change your Terminal font to 'MesloLGS NF'."
+log_success "Setup complete! Please restart your terminal."
