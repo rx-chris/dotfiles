@@ -1,43 +1,48 @@
--- show line numbering
-vim.opt.number = true
+--------------------------------------------------
+-- Leader Keys (must be set before lazy loads)
+--------------------------------------------------
+vim.g.mapleader = " "         -- Set <leader> key to Space
+vim.g.maplocalleader = "\\"   -- Set <localleader> key to backslash
 
--- show relative line number from cursor
-vim.opt.relativenumber = true
+--------------------------------------------------
+-- UI
+--------------------------------------------------
+vim.opt.number = true         -- Show absolute line numbers
+vim.opt.relativenumber = true -- Show relative line numbers
+vim.opt.termguicolors = true  -- Enable 24-bit RGB colors in terminal
+vim.opt.wrap = false          -- Disable line wrapping
+vim.opt.scrolloff = 8         -- Keep 8 lines visible above/below cursor
 
--- set horizontal splits to below
-vim.opt.splitbelow = true
+--------------------------------------------------
+-- Window Splits
+--------------------------------------------------
+vim.opt.splitbelow = true     -- Horizontal splits open below
+vim.opt.splitright = true     -- Vertical splits open to the right
+vim.opt.inccommand = "split"  -- Live preview of :substitute in split window
 
--- set vertical splits to the right
-vim.opt.splitright = true
+--------------------------------------------------
+-- Editing Behavior
+--------------------------------------------------
+vim.opt.expandtab = true      -- Convert tabs to spaces
+vim.opt.shiftwidth = 2        -- Indentation width for >> and <<
+vim.opt.tabstop = 2           -- Number of spaces a tab character represents
+vim.opt.softtabstop = 2       -- Spaces inserted when pressing <Tab> in insert mode
+vim.opt.virtualedit = "block" -- Allow cursor past end of line in visual block mode
 
--- disable word wrap
-vim.opt.wrap = false
+--------------------------------------------------
+-- Search
+--------------------------------------------------
+vim.opt.ignorecase = true     -- Case-insensitive searching
+vim.opt.smartcase = true      -- Case-sensitive if search contains capital letters
 
--- expand tabs into spaces with spacing of 2
-vim.opt.expandtab = true
-vim.opt.shiftwidth = 2
-vim.opt.tabstop = 2
+--------------------------------------------------
+-- Clipboard
+--------------------------------------------------
+vim.opt.clipboard = "unnamedplus" -- Use system clipboard for yank/delete/change
 
--- every time I yank, delete, or change text, put it in the System Clipboard
-vim.opt.clipboard = "unnamedplus"
-
--- maintains scroll cursor focus to center of screen
-vim.opt.scrolloff = 999
-
--- remove block restriction in visual block mode
-vim.opt.virtualedit = "block"
-
--- opens preview in split window for certain commands
-vim.opt.inccommand = "split"
-
--- ignore letter casing, useful for plugin commands which uses Pascal case
-vim.opt.ignorecase = true
-
--- enables 24 bit colour in terminal
-vim.opt.termguicolors = true
-
--- Make sure to setup `mapleader` and `maplocalleader` before
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
+--------------------------------------------------
+-- Diagnostics
+--------------------------------------------------
+vim.diagnostic.config({
+  virtual_lines = true,
+})
