@@ -15,5 +15,6 @@ execute_quietly "Installing dependencies" \
 bash "$DOTFILES/scripts/setup/git.sh"
 bash "$DOTFILES/scripts/setup/tmux.sh"
 bash "$DOTFILES/scripts/setup/zsh.sh"
+bash "$DOTFILES/scripts/setup/nvm.sh"
 
 log_success "Setup complete! Please restart your terminal."

@@ -39,6 +39,11 @@ zle -N down-line-or-beginning-search
 bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
 bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
 
+# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$3NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 # History settings
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
@@ -57,16 +62,49 @@ setopt HIST_FIND_NO_DUPS     # skip duplicates in reverse search
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors '${(s.:.)LS_COLORS'
 
-# --- aliases ---
+# ---------------------------------------------------------
+# System & Workflow
+# ---------------------------------------------------------
+alias ez="nvim ~/.zshrc"    # edit zsh configurations
+alias sz="source ~/.zshrc"  # reload zsh configurations
+alias cls="clear"           # similar to Windows and less characters
 
-# interactive verbose
+# ---------------------------------------------------------
+# FILE OPERATIONS (Safety & Feedback)
+# ---------------------------------------------------------
 alias mv='mv -iv'
 alias cp='cp -iv'
 alias rm='rm -iv'
 
-# use eza instead of ls
+# ---------------------------------------------------------
+# DIRECTORY LISTING (Powered by eza)
+# ---------------------------------------------------------
+# Core: Replace ls with eza, add icons, and group folders at the top
 alias ls='eza --icons --group-directories-first'
-alias lv='eza --icons --group-directories-first -1'
-alias la='eza -la --icons --group-directories-first'
-alias ll='eza -lh --icons --group-directories-first'
 
+# Standard View Variants
+alias lv='ls -1'      # Vertical: single column list
+alias la='ls -a'      # All: include hidden files
+alias ll='ls -lh'     # Long: detailed info with human-readable sizes
+alias lla='ls -la'    # Long-All: detailed info including hidden files
+
+# ---------------------------------------------------------
+# ADVANCED & SORTED VIEWS
+# ---------------------------------------------------------
+# Git Status: Shows modified/staged status in the margin
+alias lg='ls -l --git'
+
+# Sorted View Variants
+alias lnew='ls -tl --sort=modified' # Recent: Sort by newest modified files
+alias lsize='ls -l --sort=size' # Size: Sort by largest files
+
+# ---------------------------------------------------------
+# TREE VIEWS
+# ---------------------------------------------------------
+# Base tree command
+alias lt='ls --tree'
+
+# Depth-specific tree views
+alias lt1='lt --level=1'
+alias lt2='lt --level=2'
+alias lt3='lt --level=3'
