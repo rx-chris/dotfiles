@@ -1,51 +1,37 @@
 return {
+  'neovim/nvim-lspconfig',
 
-  -- Mason core (installer)
-  {
-    "mason-org/mason.nvim",
-    opts = {},
-  },
-
-  -- Mason ↔ LSP bridge
-  {
-    "mason-org/mason-lspconfig.nvim",
-    opts = {
-      ensure_installed = { "clangd", "terraformls" }, -- add servers you need
-      automatic_enable = true,
+  dependencies = {
+    {
+      'mason-org/mason.nvim',
+      opts = {},
     },
-    dependencies = { "mason-org/mason.nvim" },
+    'mason-org/mason-lspconfig.nvim',
+    'WhoIsSethDaniel/mason-tool-installer.nvim',
+
+    { 'j-hui/fidget.nvim', opts = {} },
+
+    'saghen/blink.cmp',
   },
 
-  -- Core LSP configuration
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = { "mason-org/mason-lspconfig.nvim" },
-    config = function()
-      local lsp = vim.lsp
+  config = function()
+    require('lsp.attach').setup()
 
-      -- Manually configure Lua LSP
-      lsp.config("lua_ls", {
-        settings = {
-          Lua = {
-            runtime = {
-              version = "LuaJIT",
-            },
-            diagnostics = {
-              globals = { "vim" }, -- recognize vim as global
-            },
-            workspace = {
-              -- include all runtime files for autocomplete
-              library = vim.api.nvim_get_runtime_file("", true),
-              checkThirdParty = false,
-            },
-            telemetry = {
-              enable = false,
-            },
-          },
-        },
-      })
+    local capabilities = require("lsp.capabilities")
 
-      lsp.enable("lua_ls")
-    end,
-  },
+    local servers = require('lsp.servers')
+
+    local ensure_installed = vim.tbl_keys(servers)
+    vim.list_extend(ensure_installed, { 'stylua' })
+
+    require('mason-tool-installer').setup({
+      ensure_installed = ensure_installed,
+    })
+
+    for name, config in pairs(servers) do
+      config.capabilities = capabilities
+      vim.lsp.config(name, config)
+      vim.lsp.enable(name)
+    end
+  end,
 }

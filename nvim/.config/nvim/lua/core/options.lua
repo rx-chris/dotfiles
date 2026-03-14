@@ -36,6 +36,12 @@ vim.opt.ignorecase = true     -- Case-insensitive searching
 vim.opt.smartcase = true      -- Case-sensitive if search contains capital letters
 
 --------------------------------------------------
+-- Performance
+--------------------------------------------------
+vim.opt.updatetime = 250     -- Faster update time for events
+vim.opt.undofile = true      -- Persistent undo history
+
+--------------------------------------------------
 -- Clipboard
 --------------------------------------------------
 vim.opt.clipboard = "unnamedplus" -- Use system clipboard for yank/delete/change
