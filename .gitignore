@@ -1,9 +1,78 @@
-# Ignore the actual plugin code (Lazy handles this)
-/lazy/
-/lazy-lock.json.bak
+# =========================
+# Ignore everything by default (Stow workflow)
+# =========================
+*
 
-# Ignore Neovim runtime files
-*.swp
-*.swo
-undo/
-backup/
+# =========================
+# Track Stow package folders
+# =========================
+!zsh/
+!bash/
+!nvim/
+!old/
+!scripts/
+!tmux/
+!alacritty/
+!config/   # optional, for extra configs
+
+# Keep gitignore tracked
+!.gitignore
+
+# =========================
+# Neovim-specific ignore rules (minimal)
+# =========================
+nvim/**/lazy/   # ignore installed plugins
+nvim/undo/      # undo history
+nvim/backup/    # backup files
+
+# =========================
+# Editor / IDE ignores
+# =========================
+# VSCode
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains IDEs (IntelliJ, PyCharm, etc.)
+.idea/
+
+# =========================
+# Editor temp files (recursive, covers Vim/Neovim too)
+# =========================
+**/*.swp
+**/*.swo
+**/*.swn
+**/*.bak
+**/*.orig
+**/*.old
+**/*.log
+**/*.tmp
+**/*.DS_Store
+**/Thumbs.db
+
+# =========================
+# System files
+# =========================
+Desktop.ini
+.AppleDouble
+.LSOverride
+
+# =========================
+# Compiled / intermediate files
+**/*.pyc
+**/__pycache__/
+**/node_modules/
+**/vendor/
+**/.bundle/
+
+# =========================
+# Sensitive files (never commit)
+*.key
+*.pem
+*.crt
+*.env
+.ssh/
+.gnupg/
