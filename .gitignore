@@ -1,29 +1,10 @@
 # =========================
-# Ignore everything by default (Stow workflow)
-# =========================
-*
-
-# =========================
-# Track Stow package folders
-# =========================
-!zsh/
-!bash/
-!nvim/
-!old/
-!scripts/
-!tmux/
-!alacritty/
-!config/   # optional, for extra configs
-
-# Keep gitignore tracked
-!.gitignore
-
-# =========================
 # Neovim-specific ignore rules (minimal)
 # =========================
 nvim/**/lazy/   # ignore installed plugins
 nvim/undo/      # undo history
 nvim/backup/    # backup files
+nvim2
 
 # =========================
 # Editor / IDE ignores
