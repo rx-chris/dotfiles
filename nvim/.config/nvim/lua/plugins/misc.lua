@@ -17,6 +17,9 @@ return {
 		"tpope/vim-rhubarb",
 	},
 	{
+		"numToStr/Comment.nvim",
+	},
+	{
 		-- Hints keybinds
 		"folke/which-key.nvim",
 		opts = {
