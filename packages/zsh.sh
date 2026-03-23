@@ -9,9 +9,21 @@ run() {
   # apply config
   stow --restow zsh
 
-  # set default shell (safe check)
-  if [ "$SHELL" != "$(which zsh)" ]; then
-    chsh -s "$(which zsh)"
+  ZSH_PATH="$(which zsh)"
+
+  # try to register shell (ignore failure)
+  if [ -w /etc/shells ]; then
+    grep -qx "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells
+  fi
+
+  # attempt chsh, fallback if it fails
+  if [ "$SHELL" != "$ZSH_PATH" ]; then
+    if chsh -s "$ZSH_PATH" 2>/dev/null; then
+      echo "Default shell changed via chsh"
+    else
+      echo "chsh failed, falling back to rc exec"
+      grep -qx 'exec zsh' ~/.bashrc || echo 'exec zsh' >> ~/.bashrc
+    fi
   fi
 
   echo "zsh setup complete. restart your terminal."
