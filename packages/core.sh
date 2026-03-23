@@ -13,6 +13,7 @@ run() {
     fzf
     bat
     zoxide
+    lazygit
   )
 
   TO_INSTALL=()
