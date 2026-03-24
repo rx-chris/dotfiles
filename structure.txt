@@ -1,0 +1,60 @@
+dotfiles/
+│
+├── stow/                         # 🐧 ALL Linux/Unix dotfiles (WSL + proot Ubuntu)
+│   ├── zsh/
+│   │   ├── .zshrc
+│   │   └── .zshrc.d/
+│   │       ├── 00-core.zsh
+│   │       ├── 01-history.zsh
+│   │       ├── 02-aliases.zsh
+│   │       └── 10-env.zsh
+│   │
+│   ├── tmux/
+│   │   └── .tmux.conf
+│   │
+│   ├── nvim/
+│   │   └── .config/nvim/
+│   │       ├── init.lua
+│   │       └── lua/...
+│   │
+│   └── git/
+│       └── .gitconfig
+│
+│
+├── overlays/                     # 🧩 environment-specific tweaks (tiny differences only)
+│   ├── wsl/
+│   │   └── zsh/
+│   │       └── .zshrc.d/
+│   │           └── 20-wsl.zsh
+│   │
+│   ├── proot/
+│   │   └── zsh/
+│   │       └── .zshrc.d/
+│   │           └── 20-proot.zsh
+│   │
+│   └── windows/                 # optional future use
+│       └── powershell/
+│           └── profile.ps1
+│
+│
+├── scripts/                      # 🔧 installers + setup logic (NOT stow-managed)
+│   ├── bootstrap.sh
+│   ├── common.sh
+│   │
+│   ├── ubuntu/
+│   │   ├── zsh.sh
+│   │   ├── nvim.sh
+│   │   ├── tmux.sh
+│   │   └── git.sh
+│   │
+│   ├── termux/
+│   │   ├── setup-ubuntu.sh      # proot Ubuntu install
+│   │   └── nerd-fonts.sh
+│   │
+│   └── windows/
+│       └── setup.ps1
+│
+│
+├── .env.example                  # optional shared template
+├── README.md
+└── LICENSE (optional)
