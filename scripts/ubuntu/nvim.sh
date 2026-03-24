@@ -1,22 +1,18 @@
-run() {
-  echo "==> nvim"
+#!/usr/bin/env bash
+set -euo pipefail
 
-  # install neovim
-  if ! command -v nvim >/dev/null 2>&1; then
-    sudo apt update
-    sudo apt install -y neovim
-  else
-    echo "nvim already installed"
-  fi
+source "$(dirname "${BASH_SOURCE[0]}")/../common.sh"
 
-  # stow config
-  stow --restow nvim
+echo "==> Neovim setup"
 
-  # sanity check config location
-  if [ ! -d "$HOME/.config/nvim" ]; then
-    echo "warning: no nvim config found in ~/.config/nvim"
-  fi
+# -------------------------------------------------
+# Install Neovim
+# -------------------------------------------------
+install_if_missing nvim
 
-  echo "nvim ready"
-  echo "plugin manager handles installs on first launch"
-}
+# -------------------------------------------------
+# Optional dependencies (recommended tools)
+# -------------------------------------------------
+install_if_missing git curl unzip ripgrep
+
+echo "✔ Neovim package setup complete"
