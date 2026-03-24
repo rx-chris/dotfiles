@@ -59,7 +59,7 @@ map("i", "kj", "<ESC>", opts)
 -- =========================================================
 -- Other Useful Shortcuts
 -- =========================================================
-map("n", "<C-a>", "ggVG", opts) -- Select all text in the buffer
+map("n", "<leader>a", "ggVG", opts) -- Select all text in the buffer
 
 -- manual formatting
 vim.keymap.set("n", "<leader>f", function()

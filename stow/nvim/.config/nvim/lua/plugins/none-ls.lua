@@ -9,7 +9,6 @@ return {
 					ensure_installed = {
 						"black",
 						"prettier",
-						"rubocop",
 						"stylua",
 					},
 					automatic_installation = true,
