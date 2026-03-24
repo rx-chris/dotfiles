@@ -1,22 +1,19 @@
-run() {
-    echo "🔄 Updating package list..."
-    sudo apt update
+#!/usr/bin/env bash
+set -euo pipefail
 
-    echo "🐍 Installing Python3..."
-    sudo apt install -y python3
+source "$(dirname "${BASH_SOURCE[0]}")/../common.sh"
 
-    echo "📦 Installing pip..."
-    sudo apt install -y python3-pip
+echo "==> Python setup"
 
-    echo "🧪 Installing venv..."
-    sudo apt install -y python3-venv
+# -------------------------------------------------
+# Core Python
+# -------------------------------------------------
+install_if_missing python3
+install_if_missing python3-pip
 
-    echo "🔗 Ensuring 'python' points to python3..."
-    sudo apt install -y python-is-python3 || true
+# -------------------------------------------------
+# Useful tooling
+# -------------------------------------------------
+install_if_missing python3-venv
 
-    echo "✅ Verifying installation..."
-    python3 --version
-    pip3 --version
-
-    echo "🎉 Python setup complete!"
-}
+echo "✔ Python setup complete"
