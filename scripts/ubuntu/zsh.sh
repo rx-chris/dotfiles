@@ -1,24 +1,41 @@
-run() {
-  echo "==> zsh"
+#!/usr/bin/env bash
+set -euo pipefail
 
-  # install shell
-  if ! command -v zsh >/dev/null 2>&1; then
-    sudo apt install -y zsh
-  fi
+source "$(dirname "${BASH_SOURCE[0]}")/../common.sh"
 
-  # apply config
-  stow --restow zsh
+echo "==> Zsh setup"
 
-  ZSH_PATH="$(which zsh)"
+install_if_missing zsh git curl
 
-  # try to register shell (ignore failure)
-  if [ -w /etc/shells ]; then
-    grep -qx "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells
-  fi
+ZSH_PATH="$(which zsh)"
+CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
 
-  # set default shell (safe check) 
-  if [ "$SHELL" != "$(which zsh)" ]; then 
-    chsh -s "$(which zsh)" 
-  fi
-  echo "zsh setup complete. restart your terminal."
+# Check if already default
+[[ "$CURRENT_SHELL" == "$ZSH_PATH" ]] && {
+  echo "✅ zsh is already your default shell"
+  exit 0
 }
+
+# Try chsh
+chsh -s "$ZSH_PATH" 2>/dev/null && {
+  echo "✅ Default shell changed to zsh via chsh"
+  echo "🔄 Please restart your terminal for the change to take effect"
+  exit 0
+}
+
+echo "⚠️ chsh failed, trying /etc/passwd..."
+
+# Try editing /etc/passwd
+[[ -w /etc/passwd ]] || {
+  echo "❌ No permission to edit /etc/passwd"
+  exit 1
+}
+
+sed -i "s|^\($USER:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:\).*|\1$ZSH_PATH|" /etc/passwd && {
+  echo "✅ /etc/passwd updated successfully"
+  echo "🔄 Please restart your terminal for the change to take effect"
+  exit 0
+}
+
+echo "❌ Failed to update /etc/passwd"
+exit 1
