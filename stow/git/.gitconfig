@@ -1,0 +1,22 @@
+[include]
+    path = ~/.gitconfig.local      # machine-specific identity
+
+[include]
+    path = ~/.gitconfig.d/*.conf   # environment overlays
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[core]
+    editor = nano
+    autocrlf = input
+
+[color]
+    ui = auto
+
+[alias]
+    st = status
+    lg = log --oneline --graph --decorate
