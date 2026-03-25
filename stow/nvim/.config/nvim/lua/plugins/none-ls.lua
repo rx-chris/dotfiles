@@ -26,7 +26,6 @@ return {
 				sources = {
 					formatting.black,
 					formatting.prettier,
-					formatting.rubocop,
 					formatting.stylua,
 				},
 
