@@ -20,7 +20,8 @@ zinit light zsh-users/zsh-autosuggestions
 zinit light zdharma-continuum/fast-syntax-highlighting
 
 # Initialize completion
-autoload -Uz compinit && compinit
+autoload -Uz compinit
+compinit -C
 
 # Enable caching for all Zsh completions
 zstyle ':completion:*' use-cache on

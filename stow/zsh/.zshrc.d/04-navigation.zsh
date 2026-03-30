@@ -1,13 +1,4 @@
 # -------------------------
-# FZF keybindings (lazy-load)
-# -------------------------
-if command -v fzf &>/dev/null; then
-    fzf_path=/usr/share/doc/fzf/examples
-    [ -f $fzf_path/key-bindings.zsh ] && source $fzf_path/key-bindings.zsh
-    [ -f $fzf_path/completion.zsh ] && source $fzf_path/completion.zsh
-fi
-
-# -------------------------
 # Zoxide integration
 # -------------------------
 if command -v zoxide &>/dev/null; then
