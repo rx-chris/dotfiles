@@ -10,129 +10,166 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 fi
 
 # -------------------------------------------------
-# Resolve paths
+# Paths
 # -------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 SCRIPTS_DIR="$DOTFILES/scripts"
+PLATFORMS_DIR="$SCRIPTS_DIR/platforms"
 STOW_ROOT="$DOTFILES/stow"
-
-source "$(SCRIPT_DIR)/common/utils/detect_env.sh"
-
-# -------------------------------------------------
-# Load .env (global config)
-# -------------------------------------------------
-if [[ -f "$DOTFILES/.env" ]]; then
-  echo "==> Loading .env"
-  set -a
-  source "$DOTFILES/.env"
-  set +a
-else
-  echo "⚠️ .env file not found, continuing without it."
-fi
+OVERLAYS_DIR="$DOTFILES/overlays"
 
 # -------------------------------------------------
-# Detect environment
+# Load environment detection
 # -------------------------------------------------
-ENV="$(detect_env)"
-if [[ -z "$ENV" ]]; then
-  echo "❌ Could not detect environment. Exiting."
-  exit 1
-fi
+source "$SCRIPTS_DIR/common/utils/detect_env.sh"
+detect_env
 
 # -------------------------------------------------
-# Input validation
+# Helpers
+# -------------------------------------------------
+require_file() {
+  local file="$1"
+  local msg="${2:-Missing file: $file}"
+
+  [[ -f "$file" ]] || {
+    echo "❌ $msg"
+    exit 1
+  }
+}
+
+stow_if_exists() {
+  local dir="$1"
+  local label="${2:-overlay}"
+
+  if [[ -d "$dir" ]]; then
+    echo "==> Applying $label"
+    stow -d "$dir" -t "$HOME" .
+  fi
+}
+
+load_env() {
+  if [[ -f "$DOTFILES/.env" ]]; then
+    echo "==> Loading .env"
+    set -a
+    source "$DOTFILES/.env"
+    set +a
+  fi
+}
+
+# -------------------------------------------------
+# Input
 # -------------------------------------------------
 PKG="${1:-}"
-if [[ -z "$PKG" ]]; then
-  echo "❌ No package name provided. Usage: $0 <package>"
+[[ -n "$PKG" ]] || {
+  echo "❌ Usage: $0 <package>"
   exit 1
-fi
+}
 
 # -------------------------------------------------
-# Resolve package paths (early!)
+# Resolve package
 # -------------------------------------------------
-STOW_PKG_DIR="$STOW_ROOT/$PKG"
-if [[ ! -d "$STOW_PKG_DIR" ]]; then
-  echo "⚠️ No stow package found for $PKG. Skipping stow step."
-fi
+resolve_pkg_script() {
+  local platform_pkg="$PLATFORMS_DIR/$ENV_PLATFORM/packages/$PKG.sh"
+
+  [[ -f "$platform_pkg" ]] || {
+    echo "❌ Package not found for platform '$ENV_PLATFORM': $PKG"
+    exit 1
+  }
+
+  PKG_SCRIPT="$platform_pkg"
+  echo "==> Using package: $PKG"
+}
 
 # -------------------------------------------------
-# Assign platform using the case statement
+# Paths setup
 # -------------------------------------------------
-case "$ENV" in
-    termux)
-        PLATFORM="termux"
-        ;;
-    proot-ubuntu|wsl-ubuntu|ubuntu)
-        PLATFORM="ubuntu"
-        ;;
-    *)
-        echo "❌ No installer defined for $ENV/$PKG"
-        exit 1
-        ;;
-esac
+resolve_paths() {
+  STOW_PKG_DIR="$STOW_ROOT/$PKG"
+
+  PLATFORM_OVERLAY="$OVERLAYS_DIR/$ENV_PLATFORM/$PKG"
+  RUNTIME_OVERLAY="$OVERLAYS_DIR/$ENV_PLATFORM/$ENV_RUNTIME/$PKG"
+
+  resolve_pkg_script
+}
 
 # -------------------------------------------------
-# Assign INSTALLER_SCRIPT and PKG_SCRIPT outside the case statement
+# Validation
 # -------------------------------------------------
-INSTALLER_SCRIPT="$DOTFILES/scripts/$PLATFORM/utils/install_if_missing.sh"
-PKG_SCRIPT="$DOTFILES/scripts/$PLATFORM/$PKG.sh"
+validate_files() {
+  require_file "$PKG_SCRIPT"
+}
 
 # -------------------------------------------------
-# Ensure the installer script exists
+# Install phase
 # -------------------------------------------------
-if [[ ! -f "$INSTALLER_SCRIPT" ]]; then
-  echo "❌ Installer script not found for $PLATFORM. Exiting."
-  exit 1
-fi
+install_pkg() {
+  echo "================================================="
+  echo "Platform : $ENV_PLATFORM"
+  echo "Runtime  : $ENV_RUNTIME"
+  echo "Package  : $PKG"
+  echo "================================================="
+
+  echo "==> Loading package"
+  source "$PKG_SCRIPT"
+
+  declare -f install >/dev/null || {
+    echo "❌ install() not found in $PKG_SCRIPT"
+    exit 1
+  }
+
+  echo "==> Running install()"
+  install
+}
 
 # -------------------------------------------------
-# Ensure the package script exists
+# Stow base config
 # -------------------------------------------------
-if [[ ! -f "$PKG_SCRIPT" ]]; then
-  echo "❌ Package script not found: $PKG_SCRIPT. Exiting."
-  exit 1
-fi
+stow_pkg() {
+  stow_if_exists "$STOW_ROOT/$PKG" "base config: $PKG"
+}
 
 # -------------------------------------------------
-# Conditionally source the installer script
+# Overlays (platform → runtime)
 # -------------------------------------------------
-echo "==> Detected $PLATFORM environment."
-source "$INSTALLER_SCRIPT"
+apply_overlays() {
+
+  # Platform overlay
+  if [[ -d "$PLATFORM_OVERLAY" ]]; then
+    stow_if_exists "$PLATFORM_OVERLAY" "platform ($ENV_PLATFORM)"
+  fi
+
+  # Runtime overlay (more specific, overrides platform)
+  if [[ -d "$RUNTIME_OVERLAY" ]]; then
+    stow_if_exists "$RUNTIME_OVERLAY" "runtime ($ENV_PLATFORM/$ENV_RUNTIME)"
+  fi
+}
 
 # -------------------------------------------------
-# Debug info (optional but useful)
+# Configure phase (after stow + overlays)
 # -------------------------------------------------
-echo "==> Base: $DOTFILES"
-echo "==> Env:  $ENV"
-echo "==> Pkg:  $PKG"
+configure_pkg() {
+  if declare -f configure >/dev/null; then
+    echo "==> Running configure()"
+    configure
+  fi
+}
 
 # -------------------------------------------------
-# Install
+# Main
 # -------------------------------------------------
-echo "==> Installing..."
-bash "$PKG_SCRIPT"
+main() {
+  load_env
+  resolve_paths
+  validate_files
 
-# -------------------------------------------------
-# Stow the package (if applicable)
-# -------------------------------------------------
-if [[ -d "$STOW_PKG_DIR" ]]; then
-  echo "==> Stowing $PKG"
-  cd "$STOW_ROOT"
-  stow -v -t "$HOME" "$PKG"
-else
-  echo "⚠️ No stow package for $PKG (skipped)"
-fi
+  install_pkg
+  stow_pkg
+  apply_overlays
+  configure_pkg
 
-# -------------------------------------------------
-# Apply environment overlay if present
-# -------------------------------------------------
-#OVERLAY_DIR="$DOTFILES/overlays/$ENV/$PKG"
-#if [[ -d "$OVERLAY_DIR" ]]; then
-#    echo "==> Applying overlay for $ENV/$PKG"
-#    cd "$OVERLAY_DIR"
-#    stow -v -t ~ .
-#fi
+  echo "==> Done"
+}
 
-echo "==> Done"
+main "$@"
