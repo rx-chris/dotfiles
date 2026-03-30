@@ -6,32 +6,25 @@ set -euo pipefail
 # -------------------------------------------------
 source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
 
-echo "==> Core packages setup"
+# -------------------------------------------------
+# Load GitHub SSH module
+# -------------------------------------------------
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/packagelib/github/ssh.sh"
 
-# -------------------------------------------------
-# install phase
-# -------------------------------------------------
+echo "==> GitHub SSH (Ubuntu)"
+
 install() {
-  install_if_missing \
-    git \
-    curl \
-    stow \
-    xclip \
-    eza \
-    build-essential \
-    fontconfig \
-    tmux \
-    fzf \
-    bat \
-    zoxide \
-    lazygit
+  install_github_ssh
+}
 
-  echo "✔ Core packages setup complete"
+configure() {
+  configure_github_ssh "$@"
 }
 
 # -------------------------------------------------
 # Entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
+  install "$@"
+  configure "$@"
 fi

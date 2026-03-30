@@ -2,36 +2,29 @@
 set -euo pipefail
 
 # -------------------------------------------------
-# Load platform utilities
+# Load platform installer
 # -------------------------------------------------
 source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
 
-echo "==> Core packages setup"
+# -------------------------------------------------
+# Load shared git logic
+# -------------------------------------------------
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/packages/git.sh"
 
-# -------------------------------------------------
-# install phase
-# -------------------------------------------------
+echo "==> Git (Ubuntu)"
+
 install() {
-  install_if_missing \
-    git \
-    curl \
-    stow \
-    xclip \
-    eza \
-    build-essential \
-    fontconfig \
-    tmux \
-    fzf \
-    bat \
-    zoxide \
-    lazygit
+  install_git
+}
 
-  echo "✔ Core packages setup complete"
+configure() {
+  configure_git "$@"
 }
 
 # -------------------------------------------------
-# Entrypoint
+# direct execution entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
+  install "$@"
+  configure "$@"
 fi

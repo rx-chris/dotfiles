@@ -1,23 +1,49 @@
-run() {
-  echo "==> tmux"
+#!/usr/bin/env bash
+set -euo pipefail
 
-  # install tmux
-  if ! command -v tmux >/dev/null 2>&1; then
-    sudo apt update
-    sudo apt install -y tmux
-  fi
+# -------------------------------------------------
+# Load platform utilities
+# -------------------------------------------------
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
 
-  # stow config
-  stow --restow tmux
+echo "==> tmux setup"
 
-  # install TPM (only once)
+# -------------------------------------------------
+# install phase
+# -------------------------------------------------
+install() {
+  install_if_missing tmux
+}
+
+# -------------------------------------------------
+# configure phase (runs AFTER stow)
+# -------------------------------------------------
+configure() {
+  echo "==> Configuring tmux"
+
   TPM_DIR="$HOME/.tmux/plugins/tpm"
 
-  if [ ! -d "$TPM_DIR" ]; then
-    echo "installing TPM"
+  if [[ ! -d "$TPM_DIR" ]]; then
+    echo "==> Installing TPM"
     git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+  else
+    echo "✔ TPM already installed"
   fi
 
-  echo "tmux ready"
-  echo "run: Prefix + I inside tmux to install plugins"
+  if command -v tmux >/dev/null 2>&1; then
+    echo "🧩 tmux: $(tmux -V)"
+  else
+    echo "⚠️ tmux not found"
+  fi
+
+  echo "✔ tmux ready"
+  echo "👉 Run: Prefix + I inside tmux to install plugins"
 }
+
+# -------------------------------------------------
+# Entrypoint
+# -------------------------------------------------
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  install
+  configure
+fi
