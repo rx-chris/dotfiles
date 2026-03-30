@@ -1,30 +1,44 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-# Source all helper scripts
+# -------------------------------------------------
+# Load helpers
+# -------------------------------------------------
 source "$SCRIPT_DIR/utils/proot_check.sh"
 source "$SCRIPT_DIR/utils/ubuntu_check.sh"
 source "$SCRIPT_DIR/utils/wsl_check.sh"
 source "$SCRIPT_DIR/utils/termux_check.sh"
+source "$SCRIPT_DIR/utils/docker_check.sh"
 
-# Main environment detection function
+# -------------------------------------------------
+# Detect environment
+# -------------------------------------------------
 detect_env() {
-    local env="unknown"
+    ENV_PLATFORM="unknown"
+    ENV_RUNTIME="native"
 
     if is_termux; then
-        env="termux"
-    elif is_wsl; then
-        env="wsl-ubuntu"
+        ENV_PLATFORM="termux"
+        ENV_RUNTIME="termux"
+
     elif is_ubuntu; then
-        if is_in_proot; then
-            env="proot-ubuntu"
-        else
-            env="ubuntu"
+        ENV_PLATFORM="ubuntu"
+
+        if is_wsl; then
+            ENV_RUNTIME="wsl"
+        elif is_in_proot; then
+            ENV_RUNTIME="proot"
+        elif is_docker; then
+            ENV_RUNTIME="docker"
         fi
     else
-        env="linux"
+        ENV_PLATFORM="linux"
+
+        if is_docker; then
+            ENV_RUNTIME="docker"
+        fi
     fi
 
-    echo "$env"
+    export ENV_PLATFORM ENV_RUNTIME
 }
