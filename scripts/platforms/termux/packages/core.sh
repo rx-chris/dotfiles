@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 # -------------------------------------------------
 # Package header
@@ -19,7 +20,7 @@ install() {
   # -------------------------------------------------
   # Core CLI utilities
   # -------------------------------------------------
-  install_if_missing git curl wget unzip tar
+  pkg_install git curl wget unzip tar
 
   # -------------------------------------------------
   # Termux storage setup

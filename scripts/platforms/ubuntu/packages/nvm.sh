@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 echo "==> Node (NVM + Node.js) setup"
 
@@ -12,7 +13,7 @@ echo "==> Node (NVM + Node.js) setup"
 # install phase
 # -------------------------------------------------
 install() {
-  install_if_missing curl git
+  pkg_install curl git
 
   local NVM_VERSION="${NVM_VERSION:-v0.40.4}"
   local NVM_DIR="${NVM_DIR:-$HOME/.nvm}"

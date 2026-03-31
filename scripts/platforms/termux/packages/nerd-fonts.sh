@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 echo "==> Nerd Fonts (Termux)"
 
@@ -13,7 +14,7 @@ echo "==> Nerd Fonts (Termux)"
 # -------------------------------------------------
 install() {
 
-  install_if_missing curl unzip
+  pkg_install curl unzip
 
   # Termux-only guard
   [[ -d "$PREFIX" ]] || {

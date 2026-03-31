@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 echo "==> Python setup"
 
@@ -13,7 +14,7 @@ echo "==> Python setup"
 # -------------------------------------------------
 install() {
   # Core Python
-  install_if_missing python3 python3-pip python3-venv
+  pkg_install python3 python3-pip python3-venv
 
   echo "==> Verifying installation..."
 

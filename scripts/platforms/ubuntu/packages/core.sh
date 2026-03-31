@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 echo "==> Core packages setup"
 
@@ -12,7 +13,7 @@ echo "==> Core packages setup"
 # install phase
 # -------------------------------------------------
 install() {
-  install_if_missing \
+  pkg_install \
     git \
     curl \
     stow \

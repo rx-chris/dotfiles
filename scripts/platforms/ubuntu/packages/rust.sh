@@ -4,7 +4,8 @@ set -euo pipefail
 # -------------------------------------------------
 # Load platform utilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/install_if_missing.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
 
 echo "==> Rust setup"
 
@@ -13,7 +14,7 @@ echo "==> Rust setup"
 # -------------------------------------------------
 install() {
   # Dependencies
-  install_if_missing curl build-essential
+  pkg_install curl build-essential
 
   # -------------------------------------------------
   # Install rustup (if missing)

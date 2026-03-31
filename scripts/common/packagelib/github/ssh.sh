@@ -12,7 +12,7 @@ echo "==> GitHub SSH (common logic)"
 # install
 # -------------------------------------------------
 install_github_ssh() {
-  install_if_missing openssh gh curl
+  pkg_install openssh gh curl
 }
 
 # -------------------------------------------------

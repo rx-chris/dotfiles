@@ -2,7 +2,7 @@
 set -euo pipefail
 
 install_git() {
-  install_if_missing git
+  pkg_install git
   echo "✔ git installed"
 }
 
