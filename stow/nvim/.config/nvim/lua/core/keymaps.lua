@@ -1,70 +1,76 @@
 -- =========================================================
--- Keymaps
--- =========================================================
-
 -- Leader Keys (must be set before lazy loads)
+-- =========================================================
 vim.g.mapleader = " " -- Space as global leader
 vim.g.maplocalleader = "\\" -- Backslash as local leader
 
-local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
+-- Custom map function that includes opts and desc
+local map = function(mode, lhs, rhs, desc)
+	vim.keymap.set(mode, lhs, rhs, { noremap = true, silent = true, desc = desc })
+end
+
+-- =========================================================
+-- General Keymaps
+-- =========================================================
+map("n", "<leader>a", "ggVG", "Select all text")
+map("n", "<leader>f", function()
+	vim.lsp.buf.format({ async = true })
+end, "Format buffer")
+map("n", "<leader>s", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", "Replace word under cursor")
 
 -- =========================================================
 -- Save / Quit
 -- =========================================================
-map("n", "<leader>w", ":w<CR>", opts) -- Save file
-map("n", "<leader>q", ":q<CR>", opts) -- Quit
-map("n", "<leader>x", ":x<CR>", opts) -- Save & quit
+map("n", "<leader>w", ":w<CR>", "Save file")
+map("n", "<leader>q", ":q<CR>", "Quit")
+map("n", "<leader>x", ":x<CR>", "Save & quit")
 
 -- =========================================================
 -- Search
 -- =========================================================
-map("n", "<leader>h", ":nohlsearch<CR>", opts) -- Clear search highlight
+map("n", "<leader>h", ":nohlsearch<CR>", "Clear search highlight")
 
 -- =========================================================
 -- Buffer Navigation
 -- =========================================================
-map("n", "<leader>bn", ":bnext<CR>", opts) -- Next buffer
-map("n", "<leader>bp", ":bprevious<CR>", opts) -- Previous buffer
-map("n", "<leader>bd", ":bdelete<CR>", opts) -- Delete buffer
+map("n", "<leader>bn", ":bnext<CR>", "Next buffer")
+map("n", "<leader>bp", ":bprevious<CR>", "Previous buffer")
+map("n", "<leader>bd", ":bdelete<CR>", "Delete buffer")
 
 -- =========================================================
 -- Window Navigation
 -- =========================================================
-map("n", "<C-h>", "<C-w>h", opts)
-map("n", "<C-j>", "<C-w>j", opts)
-map("n", "<C-k>", "<C-w>k", opts)
-map("n", "<C-l>", "<C-w>l", opts)
+map("n", "<C-h>", "<C-w>h", "Move to left window")
+map("n", "<C-j>", "<C-w>j", "Move to below window")
+map("n", "<C-k>", "<C-w>k", "Move to above window")
+map("n", "<C-l>", "<C-w>l", "Move to right window")
 
 -- Split resizing
-map("n", "<C-Up>", ":resize +2<CR>", opts)
-map("n", "<C-Down>", ":resize -2<CR>", opts)
-map("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+map("n", "<C-Up>", ":resize +2<CR>", "Increase height")
+map("n", "<C-Down>", ":resize -2<CR>", "Decrease height")
+map("n", "<C-Left>", ":vertical resize -2<CR>", "Decrease width")
+map("n", "<C-Right>", ":vertical resize +2<CR>", "Increase width")
 
 -- =========================================================
 -- Visual Mode Enhancements
 -- =========================================================
-map("v", "<", "<gv", opts) -- Stay in indent mode
-map("v", ">", ">gv", opts)
-map("v", "<A-j>", ":m '>+1<CR>gv=gv", opts) -- Move selected lines down
-map("v", "<A-k>", ":m '<-2<CR>gv=gv", opts) -- Move selected lines up
+map("v", "<", "<gv", "Stay in indent mode (left)")
+map("v", ">", ">gv", "Stay in indent mode (right)")
+
+-- Move current line in normal mode
+map("n", "<A-j>", ":m .+1<CR>==", "Move line down")
+map("n", "<A-k>", ":m .-2<CR>==", "Move line up")
+
+-- Move selected lines in visual mode
+map("v", "<A-j>", ":m '>+1<CR>gv=gv", "Move selection down")
+map("v", "<A-k>", ":m '<-2<CR>gv=gv", "Move selection up")
+
+-- Move current line while staying in insert mode
+map("i", "<A-j>", "<Esc>:m .+1<CR>==gi", "Move line down in insert mode")
+map("i", "<A-k>", "<Esc>:m .-2<CR>==gi", "Move line up in insert mode")
 
 -- =========================================================
 -- Insert Mode Enhancements
 -- =========================================================
-map("i", "jk", "<ESC>", opts) -- Press jk to exit insert mode
-map("i", "kj", "<ESC>", opts)
-
--- =========================================================
--- Other Useful Shortcuts
--- =========================================================
-map("n", "<leader>a", "ggVG", opts) -- Select all text in the buffer
-
--- manual formatting
-vim.keymap.set("n", "<leader>f", function()
-	vim.lsp.buf.format({ async = true })
-end, { desc = "Format buffer" })
-
--- replace word under cursor
-vim.keymap.set("n", "<leader>s", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>")
+map("i", "jk", "<ESC>", "Exit insert mode (jk)")
+map("i", "kj", "<ESC>", "Exit insert mode (kj)")
