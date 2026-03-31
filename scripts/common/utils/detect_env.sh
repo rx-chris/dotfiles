@@ -1,15 +1,13 @@
-#!/usr/bin/env bash
-
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # -------------------------------------------------
 # Load helpers
 # -------------------------------------------------
-source "$SCRIPT_DIR/utils/proot_check.sh"
-source "$SCRIPT_DIR/utils/ubuntu_check.sh"
-source "$SCRIPT_DIR/utils/wsl_check.sh"
-source "$SCRIPT_DIR/utils/termux_check.sh"
-source "$SCRIPT_DIR/utils/docker_check.sh"
+source "$SCRIPT_DIR/env_check/proot_check.sh"
+source "$SCRIPT_DIR/env_check/ubuntu_check.sh"
+source "$SCRIPT_DIR/env_check/wsl_check.sh"
+source "$SCRIPT_DIR/env_check/termux_check.sh"
+source "$SCRIPT_DIR/env_check/docker_check.sh"
 
 # -------------------------------------------------
 # Detect environment
