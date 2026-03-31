@@ -1,7 +1,4 @@
-# -------------------------
-# Language environments
-# -------------------------
-# Node.js / nvm
+# Node.js / NVM Setup
 export NVM_DIR="$HOME/.nvm"
 
 lazy_nvm() {
@@ -12,8 +9,3 @@ lazy_nvm() {
 for cmd in node npm npx nvm; do
     eval "$cmd() { lazy_nvm; $cmd \"\$@\" }"
 done
-
-# Rust
-[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
-
-# Add more languages here as needed
