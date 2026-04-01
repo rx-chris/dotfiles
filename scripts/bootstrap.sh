@@ -12,19 +12,17 @@ fi
 # -------------------------------------------------
 # Paths
 # -------------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-SCRIPTS_DIR="$DOTFILES/scripts"
-PLATFORMS_DIR="$SCRIPTS_DIR/platforms"
-STOW_ROOT="$DOTFILES/stow"
-OVERLAYS_DIR="$DOTFILES/overlays"
+# load dotfiles environment paths
+source "$(dirname "${BASH_SOURCE[0]}")/common/utils/env_paths.sh"
 
 # -------------------------------------------------
 # Load environment detection
 # -------------------------------------------------
-source "$SCRIPTS_DIR/common/utils/detect_env.sh"
-detect_env
+source "$DOTFILES_COMMON_UTILS/env_detect/detect_platform.sh"
+source "$DOTFILES_COMMON_UTILS/env_detect/detect_runtime.sh"
+
+ENV_PLATFORM=$(detect_platform)
+ENV_RUNTIME=$(detect_runtime "$ENV_PLATFORM")
 
 # -------------------------------------------------
 # Helpers
@@ -50,10 +48,10 @@ stow_if_exists() {
 }
 
 load_env() {
-  if [[ -f "$DOTFILES/.env" ]]; then
+  if [[ -f "$DOTFILES_ROOT/.env" ]]; then
     echo "==> Loading .env"
     set -a
-    source "$DOTFILES/.env"
+    source "$DOTFILES_ROOT/.env"
     set +a
   fi
 }
@@ -71,7 +69,7 @@ PKG="${1:-}"
 # Resolve package
 # -------------------------------------------------
 resolve_pkg_script() {
-  local platform_pkg="$PLATFORMS_DIR/$ENV_PLATFORM/packages/$PKG.sh"
+  local platform_pkg="$DOTFILES_PLATFORMS/$ENV_PLATFORM/packages/$PKG.sh"
 
   [[ -f "$platform_pkg" ]] || {
     echo "❌ Package not found for platform '$ENV_PLATFORM': $PKG"
@@ -86,10 +84,10 @@ resolve_pkg_script() {
 # Paths setup
 # -------------------------------------------------
 resolve_paths() {
-  STOW_PKG_DIR="$STOW_ROOT/$PKG"
+  BASE_CONFIG="$DOTFILES_BASE_CONFIG/$PKG"
 
-  PLATFORM_OVERLAY="$OVERLAYS_DIR/$ENV_PLATFORM/$PKG"
-  RUNTIME_OVERLAY="$OVERLAYS_DIR/$ENV_PLATFORM/$ENV_RUNTIME/$PKG"
+  PLATFORM_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$PKG"
+  RUNTIME_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$ENV_RUNTIME/$PKG"
 
   resolve_pkg_script
 }
@@ -127,7 +125,7 @@ install_pkg() {
 # Stow base config
 # -------------------------------------------------
 stow_pkg() {
-  stow_if_exists "$STOW_ROOT/$PKG" "base config: $PKG"
+  stow_if_exists "$DOTFILES_BASE_CONFIG/$PKG" "base config: $PKG"
 }
 
 # -------------------------------------------------
