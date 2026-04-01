@@ -1,6 +1,6 @@
 -- overrides clipboard for Proot/Termux
 vim.g.clipboard = {
-	name = "termux",
+	name = "termux-clipboard",
 	copy = {
 		["+"] = "termux-clipboard-set",
 		["*"] = "termux-clipboard-set",
