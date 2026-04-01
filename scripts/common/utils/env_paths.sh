@@ -31,7 +31,7 @@ DOTFILES_PLATFORMS="$DOTFILES_SCRIPTS/platforms"
 # Configuration directories (stowable)
 # -------------------------
 DOTFILES_CONFIG="$DOTFILES_ROOT/config"
-DOTFILES_CONFIG_BASE="$DOTFILES_CONFIG/base"           # was stow/
+DOTFILES_BASE_CONFIG="$DOTFILES_CONFIG/base"           # was stow/
 DOTFILES_CONFIG_OVERLAYS="$DOTFILES_CONFIG/overlays"   # environment-specific
 
 # -------------------------
