@@ -2,18 +2,25 @@
 set -euo pipefail
 
 # -------------------------------------------------
-# Load platform utilities
+# Load utilities & libraries
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/pkg.sh"
-
-# -------------------------------------------------
-# Load GitHub SSH module
-# -------------------------------------------------
+# load dotfiles environment paths
+source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+SDIR=$(sd)
+# load package manager 
+source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$DOTFILES_COMMON_UTILS/pkg.sh"
+# load package library
 source "$(dirname "${BASH_SOURCE[0]}")/../../common/packagelib/github/ssh.sh"
 
+# -------------------------------------------------
+# Package header
+# -------------------------------------------------
 echo "==> GitHub SSH (Ubuntu)"
 
+# -------------------------------------------------
+# Install and configure
+# -------------------------------------------------
 install() {
   install_github_ssh
 }

@@ -2,11 +2,19 @@
 set -euo pipefail
 
 # -------------------------------------------------
-# Load platform utilities
+# Load utilities & libraries
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/pkg.sh"
+# load dotfiles environment paths
+source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+SDIR=$(sd)
+# load package manager 
+source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$DOTFILES_COMMON_UTILS/pkg.sh"
+# load package library
 
+# -------------------------------------------------
+# Package header
+# -------------------------------------------------
 echo "==> tmux setup"
 
 # -------------------------------------------------
