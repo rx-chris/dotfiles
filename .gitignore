@@ -57,3 +57,6 @@ Desktop.ini
 *.env
 .ssh/
 .gnupg/
+
+# overlay symlinks
+config/base/nvim/.config/nvim/lua/core/clipboard.lua
