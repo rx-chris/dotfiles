@@ -5,7 +5,7 @@ set -euo pipefail
 # Load platform utilities
 # -------------------------------------------------
 source "$(dirname "${BASH_SOURCE[0]}")/../utils/pkg_bootstrap.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/pkg.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/pkg.sh"
 
 # -------------------------------------------------
 # Package header
