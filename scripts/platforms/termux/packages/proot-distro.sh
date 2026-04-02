@@ -20,23 +20,35 @@ source "$DOTFILES_COMMON_PACKAGELIB/proot/setup_ubuntu.sh"
 echo "==> Proot Ubuntu setup"
 
 # -------------------------------------------------
-# Resolve CLI arguments & environment variables
+# Resolve CLI arguments (direct execution only)
 # -------------------------------------------------
 resolve_arguments() {
-    local cli_user="${1:-}"
-    local cli_pass="${2:-}"
-    local cli_distro="${3:-}"
-    local cli_alias="${4:-}"
-
-    DISTRO="${cli_distro:-${PROOT_DISTRO:-ubuntu}}"
-    DISTRO_ALIAS="${cli_alias:-${PROOT_DISRO_ALIAS:-$DISTRO}}"
-    DISTRO_USER="${cli_user:-${UBUNTU_USERNAME:-${USERNAME:-dev}}}"
-    DISTRO_PASS="${cli_pass:-${UBUNTU_PASSWORD:-${PASSWORD:-dev}}}"
+    DISTRO="${1:-ubuntu}"
+    DISTRO_ALIAS="${2:-$DISTRO}"
+    DISTRO_USER="${3:-dev}"
+    DISTRO_PASS="${4:-dev}"
 
     echo "Using distro: $DISTRO (alias: $DISTRO_ALIAS)"
     echo "Using user: $DISTRO_USER"
 }
 
+# -------------------------------------------------
+# Resolve bootstrapped environment variables 
+# -------------------------------------------------
+resolve_bootstrap_env() {
+    # Ensure PROOT_DISTRO is set
+    : "${PROOT_DISTRO?Error: PROOT_DISTRO is not set.}"
+
+    # Ensure either UBUNTU_USERNAME or USERNAME, and UBUNTU_PASSWORD or PASSWORD are set
+    : "${UBUNTU_USERNAME:-$USERNAME?Error: Either UBUNTU_USERNAME or USERNAME must be set.}"
+    : "${UBUNTU_PASSWORD:-$PASSWORD?Error: Either UBUNTU_PASSWORD or PASSWORD must be set.}"
+
+    # Assign values
+    DISTRO="${PROOT_DISTRO}"
+    DISTRO_ALIAS="${PROOT_DISTRO_ALIAS:-$DISTRO}"
+    DISTRO_USER="${UBUNTU_USERNAME:-$USERNAME}"
+    DISTRO_PASS="${UBUNTU_PASSWORD:-$PASSWORD}"
+}
 # -------------------------------------------------
 # Install phase (wrapper)
 # -------------------------------------------------
