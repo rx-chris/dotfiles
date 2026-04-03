@@ -5,10 +5,10 @@ set -euo pipefail
 # Load utilities & libraries
 # -------------------------------------------------
 # load dotfiles environment paths
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/env_paths.sh"
 SDIR=$(sd)
 # load package manager 
-source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$SDIR/utils/pkg_bootstrap.sh"
 source "$DOTFILES_COMMON_UTILS/pkg.sh"
 # -------------------------------------------------
 # Package header

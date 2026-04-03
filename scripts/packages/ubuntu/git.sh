@@ -5,41 +5,34 @@ set -euo pipefail
 # Load utilities & libraries
 # -------------------------------------------------
 # load dotfiles environment paths
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/env_paths.sh"
 SDIR=$(sd)
 # load package manager 
-source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$SDIR/utils/pkg_bootstrap.sh"
 source "$DOTFILES_COMMON_UTILS/pkg.sh"
+# load package library
+source "$DOTFILES_COMMON_PACKAGELIB/git.sh"
 
 # -------------------------------------------------
 # Package header
 # -------------------------------------------------
-echo "==> Core packages setup"
+echo "==> Git (Ubuntu)"
 
 # -------------------------------------------------
-# install phase
+# Install and configure
 # -------------------------------------------------
 install() {
-  pkg_install \
-    git \
-    curl \
-    stow \
-    xclip \
-    eza \
-    build-essential \
-    fontconfig \
-    tmux \
-    fzf \
-    bat \
-    zoxide \
-    lazygit
+  install_git
+}
 
-  echo "✔ Core packages setup complete"
+configure() {
+  configure_git "$@"
 }
 
 # -------------------------------------------------
-# Entrypoint
+# direct execution entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
+  install "$@"
+  configure "$@"
 fi

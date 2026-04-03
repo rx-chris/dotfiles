@@ -5,31 +5,41 @@ set -euo pipefail
 # Load utilities & libraries
 # -------------------------------------------------
 # load dotfiles environment paths
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/env_paths.sh"
 SDIR=$(sd)
 # load package manager 
-source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$SDIR/utils/pkg_bootstrap.sh"
 source "$DOTFILES_COMMON_UTILS/pkg.sh"
 
 # -------------------------------------------------
-# Load shared git logic
+# Package header
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/../../common/packages/git.sh"
+echo "==> Core packages setup"
 
-echo "==> Git (Termux)"
-
+# -------------------------------------------------
+# install phase
+# -------------------------------------------------
 install() {
-  install_git
-}
+  pkg_install \
+    git \
+    curl \
+    stow \
+    xclip \
+    eza \
+    build-essential \
+    fontconfig \
+    tmux \
+    fzf \
+    bat \
+    zoxide \
+    lazygit
 
-configure() {
-  configure_git "$@"
+  echo "✔ Core packages setup complete"
 }
 
 # -------------------------------------------------
-# direct execution entrypoint
+# Entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install "$@"
-  configure "$@"
+  install
 fi

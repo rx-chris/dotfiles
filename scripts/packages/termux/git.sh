@@ -5,32 +5,32 @@ set -euo pipefail
 # Load utilities & libraries
 # -------------------------------------------------
 # load dotfiles environment paths
-source "$(dirname "${BASH_SOURCE[0]}")/../../../common/utils/env_paths.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../common/utils/env_paths.sh"
 SDIR=$(sd)
 # load package manager 
-source "$SDIR/../utils/pkg_bootstrap.sh"
+source "$SDIR/utils/pkg_bootstrap.sh"
 source "$DOTFILES_COMMON_UTILS/pkg.sh"
-# load package library
-source "$(dirname "${BASH_SOURCE[0]}")/../../common/packagelib/github/ssh.sh"
+# load package libraries
+source "$DOTFILES_COMMON_PACKAGELIB/git.sh"
 
 # -------------------------------------------------
-# Package header
+# Package Header
 # -------------------------------------------------
-echo "==> GitHub SSH (Ubuntu)"
+echo "==> Git (Termux)"
 
 # -------------------------------------------------
 # Install and configure
 # -------------------------------------------------
 install() {
-  install_github_ssh
+  install_git
 }
 
 configure() {
-  configure_github_ssh "$@"
+  configure_git "$@"
 }
 
 # -------------------------------------------------
-# Entrypoint
+# direct execution entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   install "$@"
