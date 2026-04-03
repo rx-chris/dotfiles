@@ -28,8 +28,12 @@ map("n", "<leader>x", ":x<CR>", "Save & quit")
 -- =========================================================
 -- Search
 -- =========================================================
-map("n", "<leader>h", ":nohlsearch<CR>", "Clear search highlight")
+-- Nicer jump to search match
+map("n", "n", "nzzzv", "Jump to next match and center screen")
+map("n", "N", "Nzzzv", "Jump to previous match and center screen")
 
+-- Clear search highlight
+map("n", "<Esc><Esc>", ":nohlsearch<CR>", "Clear search highlight")
 -- =========================================================
 -- Buffer Navigation
 -- =========================================================

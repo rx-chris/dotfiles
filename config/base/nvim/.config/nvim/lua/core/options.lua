@@ -35,6 +35,10 @@ vim.opt.virtualedit = "block" -- Allow cursor past end of line in visual block m
 vim.opt.ignorecase = true -- Case-insensitive searching
 vim.opt.smartcase = true -- Case-sensitive if search contains capital letters
 
+-- Highlight search matches
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+
 --------------------------------------------------
 -- Performance
 --------------------------------------------------
