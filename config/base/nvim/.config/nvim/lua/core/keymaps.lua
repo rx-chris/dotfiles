@@ -34,6 +34,7 @@ map("n", "N", "Nzzzv", "Jump to previous match and center screen")
 
 -- Clear search highlight
 map("n", "<Esc><Esc>", ":nohlsearch<CR>", "Clear search highlight")
+
 -- =========================================================
 -- Buffer Navigation
 -- =========================================================
@@ -81,3 +82,7 @@ map("i", "jk", "<ESC>", "Exit insert mode (jk)")
 map("i", "kj", "<ESC>", "Exit insert mode (kj)")
 map("i", "JK", "<ESC>", "Exit insert mode (JK)")
 map("i", "KJ", "<ESC>", "Exit insert mode (KJ)")
+
+-- Highlight text
+map("i", "<S-Left>", "<Esc>v<Left>", "Highlight text towards the left")
+map("i", "<S-Right>", "<Esc>v<Right>", "Highlight text towards the right")
