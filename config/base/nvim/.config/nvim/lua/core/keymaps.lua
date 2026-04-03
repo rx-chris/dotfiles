@@ -76,5 +76,8 @@ map("i", "<A-k>", "<Esc>:m .-2<CR>==gi", "Move line up in insert mode")
 -- =========================================================
 -- Insert Mode Enhancements
 -- =========================================================
+-- exit insert mode
 map("i", "jk", "<ESC>", "Exit insert mode (jk)")
 map("i", "kj", "<ESC>", "Exit insert mode (kj)")
+map("i", "JK", "<ESC>", "Exit insert mode (JK)")
+map("i", "KJ", "<ESC>", "Exit insert mode (KJ)")
