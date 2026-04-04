@@ -18,4 +18,4 @@ detect_runtime() {
     else
         echo "native"
     fi
-}k
+}

@@ -10,7 +10,7 @@ is_docker_runtime() {
 # Returns 0 if WSL detected, 1 otherwise
 is_wsl_runtime() {
     # Check /proc/version or environment variable
-    if grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null || [ -n "$WSL_DISTRO_NAME" ]; then
+    if grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null || [ -n "${WSL_DISTRO_NAME:-}" ]; then
         return 0
     fi
 
@@ -21,7 +21,7 @@ is_wsl_runtime() {
 # Returns 0 if inside proot, 1 otherwise
 is_proot_runtime() {
     # 1. Check PROOT environment variables
-    if [ -n "$PROOT_TMP_DIR" ] || [ -n "$PROOT_NO_SECCOMP" ]; then
+    if [ -n "${PROOT_TMP_DIR:-}" ] || [ -n "${PROOT_NO_SECCOMP:-}" ]; then
         return 0
     fi
 
