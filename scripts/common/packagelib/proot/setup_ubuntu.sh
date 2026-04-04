@@ -3,12 +3,16 @@
 
 echo "==> Running Ubuntu system setup"
 
-# Update package lists and upgrade installed packages
 apt update && apt upgrade -y
+apt install -y sudo git curl
 
-# Install sudo if missing
-if ! command -v sudo >/dev/null 2>&1; then
-    apt install -y sudo
-fi
+# Create user with sudo
+useradd -m -s /bin/bash $user
+echo "$user:$pass" | chpasswd
+usermod -aG sudo $user
+echo "$user ALL=(ALL:ALL) ALL" >> /etc/sudoers
+chmod 0440 /etc/sudoers
+
+echo "User $user created with sudo access!"
 
 echo "✔ Ubuntu setup complete"

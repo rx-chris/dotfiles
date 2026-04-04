@@ -29,26 +29,25 @@ configure_proot_distro() {
     local alias="$1"
     local user="$2"
     local pass="$3"
-    local setup_script="${4:-}"  # optional distro-specific setup script
+    local setup_script="$4"  # optional path to setup script
 
     echo "==> Configuring $alias"
 
-    proot-distro login "$alias" -- bash -c "
-        set -e
+    if [[ -n "$setup_script" && -f "$setup_script" ]]; then
+        # Use cat to feed the setup script into the proot bash session
+        proot-distro login "$alias" -- bash -c "
+user='$user'
+pass='$pass'
 
-        # Universal user setup
-        id -u $user >/dev/null 2>&1 || useradd -m -s /bin/bash $user
-        echo '$user:$pass' | chpasswd
-        usermod -aG sudo $user
-        grep -q '$user ALL=(ALL:ALL) ALL' /etc/sudoers || echo '$user ALL=(ALL:ALL) ALL' >> /etc/sudoers
-
-        # Optional distro-specific setup
-        if [[ -n '$setup_script' && -f '$setup_script' ]]; then
-            source '$setup_script'
-        fi
-
-        echo '✔ $alias configured'
-    "
+# Run the setup script safely using a here-doc
+bash <<EOS
+$(<"$setup_script")
+EOS
+"
+    else
+        echo "⚠ No setup script provided, skipping custom setup."
+        proot-distro login "$alias"
+    fi
 
     echo ""
     echo "✔ Proot $alias ready"

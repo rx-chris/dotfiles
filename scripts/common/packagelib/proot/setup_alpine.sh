@@ -3,15 +3,17 @@
 
 echo "==> Running Alpine system setup"
 
-# Update package index
 apk update
+apk upgrade
+apk add sudo bash curl git
 
-# Install sudo and shadow (needed for user management)
-apk add sudo shadow bash curl wget vim
+# Create user with sudo
+adduser -D -s /bin/bash $user
+echo "$user:$pass" | chpasswd
+adduser $user wheel
+echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+chmod 0440 /etc/sudoers
 
-# Ensure bash exists for user shell
-if ! command -v bash >/dev/null 2>&1; then
-    echo "Warning: bash not installed, default shell may be /bin/sh"
-fi
+echo "User $user created with sudo access on Alpine!"
 
 echo "✔ Alpine setup complete"
