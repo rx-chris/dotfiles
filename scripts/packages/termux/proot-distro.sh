@@ -12,7 +12,6 @@ source "$SDIR/utils/pkg_bootstrap.sh"
 source "$DOTFILES_COMMON_UTILS/pkg.sh"
 # load package library
 source "$DOTFILES_COMMON_PACKAGELIB/proot/proot_distro.sh"
-source "$DOTFILES_COMMON_PACKAGELIB/proot/setup_ubuntu.sh"
 
 # -------------------------------------------------
 # Package header
