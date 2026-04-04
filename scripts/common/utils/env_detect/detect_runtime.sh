@@ -11,10 +11,10 @@ detect_runtime() {
         echo "docker"
     elif is_wsl_runtime; then
         echo "wsl"
-    elif is_proot_runtime; then
-        echo "proot"
     elif [[ "$platform" == "termux" ]]; then
         echo "termux"
+    elif is_proot_runtime; then
+        echo "proot"
     else
         echo "native"
     fi
