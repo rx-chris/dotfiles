@@ -2,10 +2,10 @@
 # Base Config with Stow
 # ----------------------------
 _base_stow() {
-    local action=$1
-    local package_name=$2
-    local config_dir=${3:-.}
-    local target_dir=${4:-$HOME}
+    local action="$1"
+    local package_name="$2"
+    local config_dir="${3:-.}"
+    local target_dir="${4:-$HOME}"
 
     stow --verbose --dir="$config_dir" --target="$target_dir" $action "$package_name"
 }
@@ -18,8 +18,8 @@ reapply_base_config() { _base_stow --restow "$@"; }   # restow
 # Overlay Helpers
 # ----------------------------
 _overlay_files() {
-    local package_name=$1
-    local config_dir=${2:-.}
+    local package_name="$1"
+    local config_dir="${2:-.}"
 
     local overlay_dir="$config_dir/$package_name"
 
@@ -32,10 +32,10 @@ _overlay_files() {
 }
 
 _overlay_symlink_action() {
-    local package_name=$1
-    local config_dir=${2:-.}
-    local target_dir=${3:-$HOME}
-    local action=$4   # "apply" or "remove"
+    local action="$1"            # "apply" or "remove"
+    local package_name="$2"
+    local config_dir="${3:-.}"
+    local target_dir="${4:-$HOME}"
 
     while read -r src; do
         local overlay_dir="$config_dir/$package_name"
@@ -55,6 +55,6 @@ _overlay_symlink_action() {
     done < <(_overlay_files "$package_name" "$config_dir")
 }
 
-apply_config_overlay()    { _overlay_symlink_action "$1" "$2" "$3" "apply"; }
-remove_config_overlay()   { _overlay_symlink_action "$1" "$2" "$3" "remove"; }
-reapply_config_overlay()  { remove_config_overlay "$1" "$2" "$3"; apply_config_overlay "$1" "$2" "$3"; }
+apply_config_overlay()    { _overlay_symlink_action "apply" "$@"; }
+remove_config_overlay()   { _overlay_symlink_action "remove" "$@"; }
+reapply_config_overlay()  { remove_config_overlay "$@"; apply_config_overlay "$@"; }
