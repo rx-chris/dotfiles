@@ -38,9 +38,7 @@ DOTFILES_CONFIG_OVERLAYS="$DOTFILES_CONFIG/overlays"   # environment-specific
 # Helper: get absolute directory of the current script
 # Usage: SDIR=$(sd)
 # -----------------------------------------------------------------
-sd() {
-    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-}
+sd() { echo "$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd -P)"; }
 
 # -------------------------
 # Optional debug output
