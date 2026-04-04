@@ -39,7 +39,7 @@ DOTFILES_CONFIG_OVERLAYS="$DOTFILES_CONFIG/overlays"   # environment-specific
 # Usage: SDIR=$(sd)
 # -----------------------------------------------------------------
 sd() {
-    cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 }
 
 # -------------------------
