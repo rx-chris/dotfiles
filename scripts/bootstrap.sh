@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # -------------------------------------------------
-# Prevent sourcing
+# Guard
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
   echo "❌ Do not source this script. Run it directly."
@@ -10,164 +10,132 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 fi
 
 # -------------------------------------------------
-# Paths
+# Logging
 # -------------------------------------------------
-# load dotfiles environment paths
-source "$(dirname "${BASH_SOURCE[0]}")/common/utils/env_paths.sh"
-
-# -------------------------------------------------
-# Load environment detection
-# -------------------------------------------------
-source "$DOTFILES_COMMON_UTILS/env_detect/detect_platform.sh"
-source "$DOTFILES_COMMON_UTILS/env_detect/detect_runtime.sh"
-
-ENV_PLATFORM=$(detect_platform)
-ENV_RUNTIME=$(detect_runtime "$ENV_PLATFORM")
+log() { echo "==> $*"; }
+err() { echo "❌ $*" >&2; exit 1; }
 
 # -------------------------------------------------
-# Helpers
+# Dry-run
 # -------------------------------------------------
-require_file() {
-  local file="$1"
-  local msg="${2:-Missing file: $file}"
-
-  [[ -f "$file" ]] || {
-    echo "❌ $msg"
-    exit 1
-  }
-}
-
-stow_if_exists() {
-  local dir="$1"
-  local label="${2:-overlay}"
-
-  if [[ -d "$dir" ]]; then
-    echo "==> Applying $label"
-    stow -d "$dir" -t "$HOME" .
+DRY_RUN=0
+run() {
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] $*"
+  else
+    "$@"
   fi
 }
 
-load_env() {
+# -------------------------------------------------
+# Core
+# -------------------------------------------------
+load_core() {
+  source "$(dirname "${BASH_SOURCE[0]}")/common/utils/env_paths.sh"
+
+  source "$DOTFILES_COMMON_UTILS/config.sh"
+  source "$DOTFILES_COMMON_UTILS/pkg.sh"
+  source "$DOTFILES_COMMON_UTILS/env_detect/detect_platform.sh"
+  source "$DOTFILES_COMMON_UTILS/env_detect/detect_runtime.sh"
+
+  ENV_PLATFORM=$(detect_platform)
+  ENV_RUNTIME=$(detect_runtime "$ENV_PLATFORM")
+
+  source "$DOTFILES_PACKAGES/$ENV_PLATFORM/utils/pkg_bootstrap.sh"
+}
+
+# -------------------------------------------------
+# Phases
+# -------------------------------------------------
+init() {
+  PKG="${1:-}"
+  [[ -n "$PKG" ]] || err "Usage: $0 <package> [--dry-run]"
+
+  [[ "${2:-}" == "--dry-run" ]] && {
+    DRY_RUN=1
+    log "Dry-run mode enabled"
+  }
+
+  load_core
+
   if [[ -f "$DOTFILES_ROOT/.env" ]]; then
-    echo "==> Loading .env"
+    log "Loading .env"
     set -a
     source "$DOTFILES_ROOT/.env"
     set +a
   fi
 }
 
-# -------------------------------------------------
-# Input
-# -------------------------------------------------
-PKG="${1:-}"
-[[ -n "$PKG" ]] || {
-  echo "❌ Usage: $0 <package>"
-  exit 1
-}
-
-# -------------------------------------------------
-# Resolve package
-# -------------------------------------------------
-resolve_pkg_script() {
-  local platform_pkg="$DOTFILES_PLATFORMS/$ENV_PLATFORM/packages/$PKG.sh"
-
-  [[ -f "$platform_pkg" ]] || {
-    echo "❌ Package not found for platform '$ENV_PLATFORM': $PKG"
-    exit 1
-  }
-
-  PKG_SCRIPT="$platform_pkg"
-  echo "==> Using package: $PKG"
-}
-
-# -------------------------------------------------
-# Paths setup
-# -------------------------------------------------
-resolve_paths() {
+resolve() {
+  PKG_SCRIPT="$DOTFILES_PACKAGES/$ENV_PLATFORM/$PKG.sh"
   BASE_CONFIG="$DOTFILES_BASE_CONFIG/$PKG"
-
   PLATFORM_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$PKG"
   RUNTIME_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$ENV_RUNTIME/$PKG"
 
-  resolve_pkg_script
+  log "Platform : $ENV_PLATFORM"
+  log "Runtime  : $ENV_RUNTIME"
+  log "Package  : $PKG"
+
+  [[ -f "$PKG_SCRIPT" ]] || \
+    err "Package not found for platform '$ENV_PLATFORM': $PKG"
 }
 
-# -------------------------------------------------
-# Validation
-# -------------------------------------------------
-validate_files() {
-  require_file "$PKG_SCRIPT"
+load_package() {
+  log "Loading package script"
+  source "$PKG_SCRIPT" || err "Failed to load $PKG_SCRIPT"
+
+  # Enforce strict contract
+  for fn in resolve_bootstrap_env install configure; do
+    declare -f "$fn" >/dev/null || \
+      err "$fn() missing in $PKG_SCRIPT"
+  done
 }
 
-# -------------------------------------------------
-# Install phase
-# -------------------------------------------------
-install_pkg() {
-  echo "================================================="
-  echo "Platform : $ENV_PLATFORM"
-  echo "Runtime  : $ENV_RUNTIME"
-  echo "Package  : $PKG"
-  echo "================================================="
+install_phase() {
+  log "Resolving package environment"
+  resolve_bootstrap_env
 
-  echo "==> Loading package"
-  source "$PKG_SCRIPT"
-
-  declare -f install >/dev/null || {
-    echo "❌ install() not found in $PKG_SCRIPT"
-    exit 1
-  }
-
-  echo "==> Running install()"
-  install
+  log "Running install()"
+  run install
 }
 
-# -------------------------------------------------
-# Stow base config
-# -------------------------------------------------
-stow_pkg() {
-  stow_if_exists "$DOTFILES_BASE_CONFIG/$PKG" "base config: $PKG"
-}
+apply_layer() {
+  local label="$1"
+  local dir="$2"
 
-# -------------------------------------------------
-# Overlays (platform → runtime)
-# -------------------------------------------------
-apply_overlays() {
-
-  # Platform overlay
-  if [[ -d "$PLATFORM_OVERLAY" ]]; then
-    stow_if_exists "$PLATFORM_OVERLAY" "platform ($ENV_PLATFORM)"
-  fi
-
-  # Runtime overlay (more specific, overrides platform)
-  if [[ -d "$RUNTIME_OVERLAY" ]]; then
-    stow_if_exists "$RUNTIME_OVERLAY" "runtime ($ENV_PLATFORM/$ENV_RUNTIME)"
+  if [[ -d "$dir" ]]; then
+    log "Applying $label overlay"
+    run reapply_config_overlay "$PKG" "$dir"
+  else
+    log "Skipping $label overlay"
   fi
 }
 
-# -------------------------------------------------
-# Configure phase (after stow + overlays)
-# -------------------------------------------------
-configure_pkg() {
-  if declare -f configure >/dev/null; then
-    echo "==> Running configure()"
-    configure
+configure_phase() {
+  if [[ -d "$BASE_CONFIG" ]]; then
+    log "Applying base config"
+    run reapply_base_config "$PKG" "$BASE_CONFIG"
+  else
+    log "No base config found"
   fi
+
+  apply_layer "platform" "$PLATFORM_OVERLAY"
+  apply_layer "runtime" "$RUNTIME_OVERLAY"
+
+  log "Running configure()"
+  run configure
 }
 
 # -------------------------------------------------
 # Main
 # -------------------------------------------------
 main() {
-  load_env
-  resolve_paths
-  validate_files
-
-  install_pkg
-  stow_pkg
-  apply_overlays
-  configure_pkg
-
-  echo "==> Done"
+  init "$@"
+  resolve
+  load_package
+  install_phase
+  configure_phase
+  log "Done"
 }
 
 main "$@"
