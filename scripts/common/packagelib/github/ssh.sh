@@ -2,25 +2,26 @@
 set -euo pipefail
 
 # -------------------------------------------------
-# Load shared core
+# Load utitilities
 # -------------------------------------------------
-source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
+# github_api() { ... }
+source "$(dirname "${BASH_SOURCE[0]}")/api.sh"
 
 echo "==> GitHub SSH (common logic)"
 
 # -------------------------------------------------
-# install
+# install dependencies
 # -------------------------------------------------
 install_github_ssh() {
-  pkg_install openssh gh curl
+  pkg_install openssh-client curl jq
 }
 
 # -------------------------------------------------
 # generate ssh key
 # -------------------------------------------------
 generate_ssh_key() {
-
-  local key_name="${GITHUB_SSH_KEY_NAME:-github}"
+  local email="${1:-}"              # optional, for SSH key comment
+  local key_name="${2:-id_ed25519}" # local key filename
   local key_path="$HOME/.ssh/$key_name"
 
   mkdir -p "$HOME/.ssh"
@@ -29,51 +30,68 @@ generate_ssh_key() {
     echo "✔ SSH key exists: $key_path"
   else
     echo "==> Generating SSH key..."
-    ssh-keygen -t ed25519 -C "$GITHUB_EMAIL" -f "$key_path" -N ""
+    ssh-keygen -t ed25519 -C "$email" -f "$key_path" -N ""
   fi
 
-  eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
-  ssh-add "$key_path" >/dev/null 2>&1 || true
+  # Start ssh-agent if needed
+  if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
+    eval "$(ssh-agent -s)" >/dev/null
+  fi
 
-  PUBLIC_KEY="$(cat "$key_path.pub")"
+  ssh-add "$key_path" >/dev/null || true
+
+  # Return public key content
+  cat "$key_path.pub"
 }
 
 # -------------------------------------------------
-# upload ssh key
+# upload ssh key to GitHub via helper
 # -------------------------------------------------
 upload_ssh_key() {
-
-  require_github_pat
+  local token="${1:?GitHub token required}"
+  local public_key="${2:?public key required}"
+  local title="${3:-$(hostname)-$(date +%s)}"  # GitHub-visible key title
 
   echo "==> Uploading SSH key to GitHub..."
 
-  github_api -X POST "https://api.github.com/user/keys" \
-    -d "$(cat <<EOF
-{
-  "title": "$(hostname)-$(date +%s)",
-  "key": "$PUBLIC_KEY"
-}
-EOF
-)" >/dev/null
+  # Encode JSON safely
+  local json
+  json=$(jq -n --arg title "$title" --arg key "$public_key" \
+           '{title: $title, key: $key}')
 
-  echo "✔ SSH key uploaded"
+  # Use github_api helper
+  if github_api "$token" -X POST "https://api.github.com/user/keys" -d "$json" >/dev/null; then
+    echo "✔ SSH key uploaded successfully"
+  else
+    echo "⚠ Failed to upload SSH key" >&2
+    return 1
+  fi
 }
 
 # -------------------------------------------------
-# test ssh
+# test SSH connection
 # -------------------------------------------------
 test_github_ssh() {
-  ssh -T git@github.com || true
+  if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    echo "✔ SSH connection to GitHub works"
+  else
+    echo "⚠ SSH test failed — check your key or GitHub token" >&2
+    return 1
+  fi
 }
 
 # -------------------------------------------------
-# configure
+# configure GitHub SSH
 # -------------------------------------------------
 configure_github_ssh() {
+  local email="${1:-}"                     # optional, for SSH key comment
+  local token="${2:?GitHub token required}"    # required for GitHub API
+  local key_name="${3:-id_ed25519}"        # local SSH key filename
+  local key_title="${4:-$key_name@$(hostname)}" # GitHub-visible title
 
-  resolve_github_credentials "$@"
+  local public_key
+  public_key=$(generate_ssh_key "$email" "$key_name")
 
-  generate_ssh_key
-  upload_ssh_key
+  upload_ssh_key "$token" "$public_key" "$key_title"
   test_github_ssh
 }
