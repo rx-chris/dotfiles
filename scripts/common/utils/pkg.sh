@@ -5,12 +5,16 @@ PKG_COMMON_LOADED=1
 # -------------------------------------------------
 # Package binary fallbacks (edge cases only)
 # -------------------------------------------------
-declare -A PKG_BIN_MAP=(
-  [openssh-client]="ssh"
-  [neovim]="nvim"
-  [nodejs]="node"
-)
+pkg_bin_map_get() {
+  local key="$1"
 
+  case "$key" in
+    openssh-client) echo "ssh" ;;
+    neovim) echo "nvim" ;;
+    nodejs) echo "node" ;;
+    *) return 1 ;;
+  esac
+}
 # -------------------------------------------------
 # Check if package is installed
 # -------------------------------------------------
@@ -27,12 +31,11 @@ is_pkg_installed() {
   command -v "$pkg" >/dev/null 2>&1 && return 0
 
   # 3) fallback binary mapping
-  [[ -v PKG_BIN_MAP["$pkg"] ]] && mapped="${PKG_BIN_MAP[$pkg]}"
+  mapped="$(pkg_bin_map_get "$pkg" || true)"
   [[ -n "$mapped" ]] && command -v "$mapped" >/dev/null 2>&1 && return 0
 
   return 1
 }
-
 # -------------------------------------------------
 # Install packages (delegates to backend)
 # -------------------------------------------------
