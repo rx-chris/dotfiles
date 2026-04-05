@@ -19,6 +19,26 @@ source "$DOTFILES_COMMON_PACKAGELIB/git.sh"
 echo "==> Git (Ubuntu)"
 
 # -------------------------------------------------
+# Resolve CLI arguments (direct execution only)
+# -------------------------------------------------
+resolve_arguments() {
+  GIT_USERNAME="${1:-dev}"
+  GIT_EMAIL="${2:-dev@example.com}"
+}
+
+# -------------------------------------------------
+# Resolve bootstrapped environment variables 
+# -------------------------------------------------
+resolve_bootstrap_env() {
+  # Ensure either GIT_USERNAME or USERNAME, and GIT_EMAIL or EMAIL are set
+  : "${GIT_USERNAME:-$USERNAME?Error: Either GIT_USERNAME or USERNAME must be set.}"
+  : "${GIT_EMAIL:-$EMAIL?Error: Either GIT_EMAIL or EMAIL must be set.}"
+
+  # Assign values
+  GIT_USERNAME="${GIT_USERNAME:-$USERNAME}"
+  GIT_EMAIL="${GIT_EMAIL:-$EMAIL}"
+}
+# -------------------------------------------------
 # Install and configure
 # -------------------------------------------------
 install() {
@@ -26,13 +46,14 @@ install() {
 }
 
 configure() {
-  configure_git "$@"
+  configure_git $GIT_USERNAME $GIT_EMAIL
 }
 
 # -------------------------------------------------
 # direct execution entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install "$@"
-  configure "$@"
+  resolve_arguments "$@"
+  install
+  configure
 fi

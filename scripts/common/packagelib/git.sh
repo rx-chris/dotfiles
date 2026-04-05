@@ -1,6 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
 install_git() {
   pkg_install git
   echo "✔ git installed"
@@ -8,22 +5,19 @@ install_git() {
 
 configure_git() {
 
-  local cli_name="${1:-}"
-  local cli_email="${2:-}"
+  local name="${1:-}"
+  local email="${2:-}"
 
-  GIT_USERNAME="${cli_name:-${GIT_USERNAME:-${USERNAME:-dev}}}"
-  GIT_EMAIL="${cli_email:-${GIT_EMAIL:-${EMAIL:-dev@example.com}}}"
-
-  echo "Git user:  $GIT_USERNAME"
-  echo "Git email: $GIT_EMAIL"
+  echo "Git user:  $name"
+  echo "Git email: $email"
 
   local GITCONFIG="$HOME/.gitconfig"
   local LOCAL="$HOME/.gitconfig.local"
 
   cat > "$LOCAL" <<EOF
 [user]
-    name = $GIT_USERNAME
-    email = $GIT_EMAIL
+    name = $name
+    email = $email
 EOF
 
   if ! grep -q ".gitconfig.local" "$GITCONFIG" 2>/dev/null; then
