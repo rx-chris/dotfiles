@@ -16,14 +16,20 @@ source "$DOTFILES_COMMON_UTILS/pkg.sh"
 # Package header
 # -------------------------------------------------
 echo "==> Zsh setup"
-
+# -------------------------------------------------
+# Resolve CLI arguments (direct execution only)
+# -------------------------------------------------
+resolve_arguments() { :; }
+# -------------------------------------------------
+# Resolve bootstrapped environment variables 
+# -------------------------------------------------
+resolve_bootstrap_env() { :; }
 # -------------------------------------------------
 # install phase
 # -------------------------------------------------
 install() {
   pkg_install zsh git curl
 }
-
 # -------------------------------------------------
 # configure phase (runs AFTER stow)
 # -------------------------------------------------
@@ -63,6 +69,7 @@ configure() {
 # Entrypoint (only runs when executed directly)
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
-  configure
+    resolve_arguments "$@"
+    install
+    configure
 fi

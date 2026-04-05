@@ -15,7 +15,14 @@ source "$DOTFILES_COMMON_UTILS/pkg.sh"
 # Package header
 # -------------------------------------------------
 echo "==> Node (NVM + Node.js) setup"
-
+# -------------------------------------------------
+# Resolve CLI arguments (direct execution only)
+# -------------------------------------------------
+resolve_arguments() { :; }
+# -------------------------------------------------
+# Resolve bootstrapped environment variables 
+# -------------------------------------------------
+resolve_bootstrap_env() { :; }
 # -------------------------------------------------
 # install phase
 # -------------------------------------------------
@@ -89,5 +96,7 @@ install() {
 # Entrypoint (direct execution support)
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
+    resolve_arguments "$@"
+    install
+    configure
 fi

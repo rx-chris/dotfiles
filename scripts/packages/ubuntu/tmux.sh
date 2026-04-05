@@ -16,7 +16,14 @@ source "$DOTFILES_COMMON_UTILS/pkg.sh"
 # Package header
 # -------------------------------------------------
 echo "==> tmux setup"
-
+# -------------------------------------------------
+# Resolve CLI arguments (direct execution only)
+# -------------------------------------------------
+resolve_arguments() { :; }
+# -------------------------------------------------
+# Resolve bootstrapped environment variables 
+# -------------------------------------------------
+resolve_bootstrap_env() { :; }
 # -------------------------------------------------
 # install phase
 # -------------------------------------------------
@@ -53,6 +60,7 @@ configure() {
 # Entrypoint
 # -------------------------------------------------
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  install
-  configure
+    resolve_arguments "$@"
+    install
+    configure
 fi
