@@ -16,7 +16,7 @@ declare -A PKG_BIN_MAP=(
 # -------------------------------------------------
 is_pkg_installed() {
   local pkg="$1"
-  local mapped
+  local mapped=""
 
   # 1) backend-provided check (preferred if available)
   if declare -F pkg_check_cmd >/dev/null 2>&1; then
@@ -27,7 +27,7 @@ is_pkg_installed() {
   command -v "$pkg" >/dev/null 2>&1 && return 0
 
   # 3) fallback binary mapping
-  mapped="${PKG_BIN_MAP[$pkg]:-}"
+  [[ -v PKG_BIN_MAP["$pkg"] ]] && mapped="${PKG_BIN_MAP[$pkg]}"
   [[ -n "$mapped" ]] && command -v "$mapped" >/dev/null 2>&1 && return 0
 
   return 1
