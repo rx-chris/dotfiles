@@ -56,7 +56,7 @@ install() {
 }
 
 configure() {
-  configure_github_ssh GITHUB_USERNAME GITHUB_EMAIL GITHUB_PAT GITHUB_SSH_KEY_NAME
+  configure_github_ssh $GITHUB_EMAIL $GITHUB_PAT $GITHUB_SSH_KEY_NAME $GITHUB_SSH_KEY_TITLE
 }
 
 # -------------------------------------------------
