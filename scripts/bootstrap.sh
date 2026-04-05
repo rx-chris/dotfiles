@@ -68,9 +68,8 @@ init() {
 
 resolve() {
   PKG_SCRIPT="$DOTFILES_PACKAGES/$ENV_PLATFORM/$PKG.sh"
-  BASE_CONFIG="$DOTFILES_BASE_CONFIGS/$PKG"
-  PLATFORM_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$PKG"
-  RUNTIME_OVERLAY="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$ENV_RUNTIME/$PKG"
+  PLATFORM_OVERLAY_DIR="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM"
+  RUNTIME_OVERLAY_DIR="$DOTFILES_CONFIG_OVERLAYS/$ENV_PLATFORM/$ENV_RUNTIME"
 
   log "Platform : $ENV_PLATFORM"
   log "Runtime  : $ENV_RUNTIME"
@@ -103,7 +102,7 @@ apply_layer() {
   local label="$1"
   local dir="$2"
 
-  if [[ -d "$dir" ]]; then
+  if [[ -d "$dir/$PKG" ]]; then
     log "Applying $label overlay"
     run reapply_config_overlay "$PKG" "$dir"
   else
@@ -112,15 +111,15 @@ apply_layer() {
 }
 
 configure_phase() {
-  if [[ -d "$BASE_CONFIG" ]]; then
+  if [[ -d "$DOTFILES_BASE_CONFIGS/$PKG" ]]; then
     log "Applying base config"
-    run reapply_base_config "$PKG" "$BASE_CONFIG"
+    run reapply_base_config "$PKG" "$DOTFILES_BASE_CONFIGS"
   else
     log "No base config found"
   fi
 
-  apply_layer "platform" "$PLATFORM_OVERLAY"
-  apply_layer "runtime" "$RUNTIME_OVERLAY"
+  apply_layer "platform" "$PLATFORM_OVERLAY_DIR"
+  apply_layer "runtime" "$RUNTIME_OVERLAY_DIR"
 
   log "Running configure()"
   run configure
