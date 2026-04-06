@@ -11,7 +11,8 @@ alias cls="clear"
 alias mv='mv -iv'
 alias cp='cp -iv'
 alias rm='rm -iv'
-alias bat='batcat'
+# Set 'bat' to the first available command (either batcat or bat)
+alias bat=$(command -v batcat || command -v bat)
 
 # -------------------------
 # eza / ls aliases
