@@ -59,4 +59,4 @@ Desktop.ini
 .gnupg/
 
 # overlay symlinks
-config/base/nvim/.config/nvim/lua/core/clipboard.lua
+config/base/neovim/.config/nvim/lua/core/clipboard.lua
