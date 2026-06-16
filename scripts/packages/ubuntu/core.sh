@@ -40,8 +40,7 @@ install() {
     tmux \
     fzf \
     bat \
-    zoxide \
-    lazygit
+    zoxide
 
   echo "✔ Core packages setup complete"
 }
