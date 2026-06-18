@@ -79,6 +79,45 @@ upload_ssh_key() {
 }
 
 # -------------------------------------------------
+# ensure SSH config and GitHub host entry
+# -------------------------------------------------
+ensure_ssh_config() {
+  local config_path="$HOME/.ssh/config"
+
+  mkdir -p "$HOME/.ssh"
+
+  if [[ ! -f "$config_path" ]]; then
+    touch "$config_path"
+    chmod 600 "$config_path"
+  fi
+}
+
+update_github_ssh_config() {
+  local key_name="${1:-id_ed25519}"
+  local config_path="$HOME/.ssh/config"
+  local key_path="$HOME/.ssh/$key_name"
+
+  ensure_ssh_config
+
+  if grep -qE '^[[:space:]]*Host[[:space:]]+github\.com($|[[:space:]])' "$config_path"; then
+    echo "✔ Existing GitHub host entry already present in $config_path; skipping managed update"
+    return 0
+  fi
+
+  cat >> "$config_path" <<EOF
+# Managed by configure_github_ssh
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile $key_path
+  IdentitiesOnly yes
+EOF
+
+  chmod 600 "$config_path"
+  echo "✔ Added GitHub host entry to $config_path"
+}
+
+# -------------------------------------------------
 # test SSH connection (uses specific key)
 # -------------------------------------------------
 test_github_ssh() {
@@ -123,6 +162,9 @@ configure_github_ssh() {
   # Step 3: upload key
   upload_ssh_key "$token" "$public_key" "$key_title"
 
-  # Step 4: test SSH
+  # Step 4: update local SSH config
+  update_github_ssh_config "$key_name"
+
+  # Step 5: test SSH
   test_github_ssh "$key_name"
 }
